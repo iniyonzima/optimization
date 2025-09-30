@@ -1,0 +1,376 @@
+% SIAM Shared Information Template
+% This is information that is shared between the main document and any
+% supplement. If no supplement is required, then this information can
+% be included directly in the main document.
+
+
+% Packages and macros go here
+\usepackage{lineno}
+%%\usepackage{hyperref}
+%%%%\usepackage[colorlinks=true, linktocpage=true]{hyperref}
+%\modulolinenumbers[5]
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[figuresright]{rotating}
+\usepackage{xcolor}
+\usepackage{pdfcomment}
+\usepackage[shortlabels]{enumitem}
+%\usepackage[sort]{cite}
+\usepackage[english]{babel}
+\usepackage{graphicx} 
+%%%%\usepackage[cmex10]{amsmath}
+\usepackage{amsfonts,amssymb,mathtools}
+\usepackage{amstext}
+\usepackage{upgreek}
+\usepackage[tight,footnotesize]{subfigure}
+%\usepackage[tight,nice]{units}
+\usepackage[makeroom]{cancel}
+%\usepackage{algorithm2e}
+%\usepackage{algorithmic}
+%\usepackage[draft]{changes}
+\usepackage[final]{changes}
+\usepackage{import}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{width=10cm,height=8cm,compat=1.16}
+%===================================
+\usepackage{pgfplotstable}
+%\sisetup{per-mode=symbol}
+\usepackage[per-mode=symbol]{siunitx}
+%===================================
+\usepackage{mathtools}
+\usepackage{soul}
+\usepackage[normalem]{ulem}
+\usepackage{color}
+\usepackage{blindtext}
+\usepackage{tcolorbox}
+\usepackage{accents}
+\usepackage{bbm}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{collectbox}
+\usepackage{caption}
+\usepackage{siunitx}
+\usepackage{setspace}
+\usepackage{lipsum}
+
+\setcounter{secnumdepth}{4}
+
+\graphicspath{{./images/}}
+
+\algnewcommand\algorithmicinput{\textbf{INPUT:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+\algnewcommand\algorithmicoutput{\textbf{OUTPUT:}}
+\algnewcommand\OUTPUT{\item[\algorithmicoutput]}
+
+
+\newcommand{\smth}{k}
+\newcommand{\nrmspace}{s}
+\newcommand{\nrmtime}{p}
+\newcommand{\nrm}{{\nrmspace, \nrmtime}}
+
+\newcommand{\mybox}{%
+    \collectbox{%
+        \setlength{\fboxsep}{1pt}%
+        \fbox{\BOXCONTENT}%
+    }%
+}
+
+\usepackage{color}
+\definecolor{gray}{gray}{0.5}
+\definecolor{lightgray}{rgb}{0.85,0.85,0.85}
+\definecolor{orange}{RGB}{255,127,0}
+\definecolor{ubuntuyellow}{rgb}{1,0.709803922,0.082352941}
+\definecolor{ubuntuorange}{rgb}{1,0.388235294,0.035294118}
+\definecolor{ubuntured}{rgb}{0.788235294,0,0.08627451}
+\definecolor{darkblue}{rgb}{0.2,0.2,0.7}
+\definecolor{darkred}{rgb}{0.7,0.2,0.2}
+\definecolor{darkblack}{rgb}{0.,0.2,0.2}
+\definecolor{lightlightlightgray}{rgb}{0.7,0.2,0.2}
+
+
+%===============================================
+% Bertrand
+%===============================================
+\colorlet{orange}{red!70!yellow}% mes petites couleurs que j'aime bien
+\colorlet{mauve}{blue!70!red}
+\colorlet{brouge}{red!70!blue}
+
+\definecolor{myblue}{rgb}{0,0,.5}
+%\definecolor{mygreen}{rgb}{0.21,0.83,0.22}
+\definecolor{mygreen}{rgb}{0.2,0.65,0.1}
+
+
+\definecolor{grisclair}{rgb}{1,1,1}
+\definecolor{grisfonce}{rgb}{0.4,0.4,0.4}
+\definecolor{Gray}{gray}{0.92}
+%================================================
+
+%\newcommand{\high}[1]{\textbf{\color{darkblue} #1}}
+\newcommand{\highblue}[1]{\textbf{\color{darkblue} #1}}
+\newcommand{\high}[1]{\textbf{\color{darkblue} #1}}
+\newcommand{\highred}[1]{\textbf{\color{darkred} #1}}
+\newcommand{\highinno}[1]{\textbf{\color{darkblack} #1}}
+
+%%%%%%%%%%%%%%Some Symbol Definitions%%%%%%%%%%%%%%%%
+
+%%%       Theorem environments
+
+% The following causes equations to be numbered within sections
+\numberwithin{equation}{section}
+
+% We'll use the equation counter for all our theorem environments, so
+% that everything will be numbered in the same sequence.
+
+\newtheorem{thm}{Theorem}
+\numberwithin{thm}{section}
+
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{ass}{Assumption}
+\newtheorem{prob}{Problem}
+\numberwithin{prob}{section}
+
+%%%%%%%%%%%%%%New Commands%%%%%%%%%%%%%%%%
+
+\renewcommand{\vec}[1]{\mathbf{\MakeLowercase{#1}}}
+\graphicspath{{figures/}}
+
+\newcommand{\diff}{\mathrm{d}}
+\newcommand{\ex}{\mathrm{ex}}
+\newcommand{\bs}{\mathbf}
+\newcommand{\trans}{{\!\top}}
+\newcommand{\diag}{\mathop{\mathrm{diag}}}
+\newcommand{\PV}{\mathop{\mathrm{PV}}}
+\newcommand{\one}{\bs{1}}
+\newcommand{\red}{}
+\newcommand{\err}{\boldsymbol{\epsilon}}
+\newcommand{\rfrac}[2]{{}^{#1}\!/_{#2}}
+\newcommand{\e}{\vec{e}}
+\newcommand{\einc}{\vec{e}^{inc}}
+\newcommand{\g}{\vec{g}}
+\newcommand{\n}{\vec{n}}
+\newcommand{\imag}{\jmath}
+\newcommand{\zero}{\vec{0}}
+\newcommand{\bx}{\mbox{\boldmath$x$}}
+\newcommand{\by}{\mbox{\boldmath$y$}}
+\newcommand{\bz}{\mbox{\boldmath$z$}}
+\newcommand{\bn}{\mbox{\boldmath$n$}}
+\newcommand{\bu}{\mbox{\boldmath$u$}}
+\newcommand{\bv}{\mbox{\boldmath$v$}}
+\newcommand{\bw}{\mbox{\boldmath$w$}}
+\newcommand{\ba}{\mbox{\boldmath$a$}}
+\newcommand{\bb}{\mbox{\boldmath$b$}}
+\newcommand{\bc}{\mbox{\boldmath$c$}}
+\newcommand{\bd}{\mbox{\boldmath$d$}}
+\newcommand{\be}{\mbox{\boldmath$e$}}
+\newcommand{\bff}{\mbox{\boldmath$f$}}
+\newcommand{\bg}{\mbox{\boldmath$g$}}
+\newcommand{\bh}{\mbox{\boldmath$h$}}
+\newcommand{\bj}{\mbox{\boldmath$j$}}
+\newcommand{\bm}{\mbox{\boldmath$m$}}
+\newcommand{\bp}{\mbox{\boldmath$p$}}
+\newcommand{\bq}{\mbox{\boldmath$q$}}
+\newcommand{\bt}{\mbox{\boldmath$t$}}
+\newcommand{\br}{\mbox{\boldmath$r$}}
+\newcommand{\beeta}{\mbox{\boldmath$\eta$}}
+\newcommand{\bA}{\mbox{\boldmath$A$}}
+\newcommand{\bB}{\boldsymbol{\mathcal{B}}}
+\newcommand{\bD}{\boldsymbol{\mathcal{D}}}
+\newcommand{\bE}{\boldsymbol{\mathcal{E}}}
+\newcommand{\bF}{\boldsymbol{\mathcal{F}}}
+\newcommand{\bFT}{\boldsymbol{\bar{\mathcal{F}}}}
+\newcommand{\bG}{\boldsymbol{\mathcal{G}}}
+\newcommand{\bGT}{\boldsymbol{\bar{\mathcal{G}}}}
+\newcommand{\bH}{\boldsymbol{\mathcal{H}}}
+\newcommand{\bJ}{\boldsymbol{\mathcal{J}}}
+\newcommand{\bK}{\mbox{\boldmath$K$}}
+\newcommand{\bL}{\mbox{\boldmath$L$}}
+\newcommand{\bM}{\mbox{\boldmath$M$}}
+\newcommand{\bN}{\mbox{\boldmath$N$}}
+\newcommand{\bP}{\boldsymbol{\mathcal{P}}}
+\newcommand{\bQ}{\mbox{\boldmath$Q$}}
+\newcommand{\bR}{\boldsymbol{\mathcal{R}}}
+\newcommand{\bS}{\mbox{\boldmath$S$}}
+\newcommand{\bU}{\mbox{\boldmath$U$}}
+\newcommand{\bV}{\mbox{\boldmath$V$}}
+\newcommand{\bW}{\mbox{\boldmath$W$}}
+\newcommand{\bX}{\mbox{\boldmath$X$}}
+\newcommand{\bY}{\mathcal{Y}}
+\newcommand{\bBB}{\mbox{\boldmath$B$}}
+\newcommand{\bCC}{\mbox{\boldmath$C$}}
+\newcommand{\bDD}{\mbox{\boldmath$D$}}
+\newcommand{\bEE}{\mbox{\boldmath$E$}}
+\newcommand{\bFF}{\boldsymbol{F}}
+\newcommand{\bGG}{\boldsymbol{G}}
+\newcommand{\bHH}{\boldsymbol{H}}
+\newcommand{\bJJ}{\mbox{\boldmath$J$}}
+\newcommand{\bKK}{\boldsymbol{K}}
+\newcommand{\bLL}{\boldsymbol{L}}
+\newcommand{\bMM}{\boldsymbol{M}}
+\newcommand{\bNN}{\boldsymbol{N}}
+\newcommand{\bPP}{\boldsymbol{P}}
+\newcommand{\bRR}{\boldsymbol{R}}
+\newcommand{\bSS}{\boldsymbol{S}}
+\newcommand{\bTT}{\boldsymbol{T}}
+\newcommand{\bUU}{\boldsymbol{U}}
+\newcommand{\bVV}{\boldsymbol{V}}
+\newcommand{\bWW}{\boldsymbol{W}}
+\newcommand{\bXX}{\boldsymbol{X}}
+\newcommand{\bZZ}{\boldsymbol{Z}}
+\newcommand{\bAAA}{\boldsymbol{\mathcal{A}}}
+\newcommand{\bBBB}{\boldsymbol{\mathcal{B}}}
+\newcommand{\bDDD}{\boldsymbol{\mathcal{D}}}
+\newcommand{\bEEE}{\boldsymbol{\mathcal{E}}}
+\newcommand{\bFFF}{\boldsymbol{\mathcal{F}}}
+\newcommand{\bHHH}{\boldsymbol{\mathcal{H}}}
+\newcommand{\bJJJ}{\boldsymbol{\mathcal{J}}}
+\newcommand{\bMMM}{\boldsymbol{\mathcal{M}}}
+\newcommand{\bPPP}{\boldsymbol{\mathcal{P}}}
+\newcommand{\bQQQ}{\boldsymbol{\mathcal{Q}}}
+\newcommand{\bSSS}{\boldsymbol{\mathcal{S}}}
+\newcommand{\bUUU}{\boldsymbol{\mathcal{U}}}
+\newcommand{\bVVV}{\boldsymbol{\mathcal{V}}}
+\newcommand{\bWWW}{\boldsymbol{\mathcal{W}}}
+\newcommand{\bXXX}{\boldsymbol{\mathcal{X}}}
+\newcommand{\bbeta}{\mbox{\boldmath$\eta$} }
+\newcommand{\bepsilon}{\mbox{\boldmath$\epsilon$} }
+\newcommand{\bkappa}{\mbox{\boldmath$\kappa$} }
+\newcommand{\bmu}{\mbox{\boldmath$\mu$} }
+\newcommand{\bnu}{\mbox{\boldmath$\nu$} }
+\newcommand{\bPhi}{\mbox{\boldmath$\Phi$} }
+\newcommand{\bsigma}{\mbox{\boldmath$\sigma$} }
+\newcommand{\btau}{\mbox{\boldmath$\tau$} }
+\newcommand{\bTheta}{\mbox{\boldmath$\Theta$} }
+\newcommand{\bvarepsilon}{\mbox{\boldmath$\varepsilon$} }
+\newcommand{\bvarphi}{\mbox{\boldmath$\varphi$} }
+\newcommand{\bvartheta}{\mbox{\boldmath$\vartheta$} }
+\newcommand{\bzero}{\boldsymbol{0} }
+\newcommand{\bone}{\boldsymbol{\mathbbm{1}}}
+\newcommand{\fitmatrix}[1]{{\bf #1}}
+\newcommand{\A}{\fitmatrix{A}}
+\newcommand{\bfff}{\fitmatrix{f}}
+\newcommand{\bfu}{\fitmatrix{u}}
+\newcommand{\bfv}{\fitmatrix{v}}
+\newcommand{\bfe}{\fitmatrix{e}}
+\newcommand{\bfg}{\fitmatrix{g}}
+\newcommand{\bfh}{\fitmatrix{h}}
+\newcommand{\bfU}{\fitmatrix{U}}
+\newcommand{\bfM}{\fitmatrix{M}}
+\newcommand{\ah}{\mbox{$\alpha$}}
+\newcommand{\bah}{\mbox{\boldmath$\alpha$}}
+\newcommand{\hlcyan}[1]{{\sethlcolor{cyan}\hl{#1}}}
+
+\newcommand{\errtot}{\err}
+\newcommand{\errff}{\err_{\mathrm{f}}}
+\newcommand{\errfg}{\err_{\mathrm{fg}}}
+
+% Continuous spaces, null spaces and range spaces
+%================================================
+\newcommand{\Ltwo}[2][]{L^2#1(#2)}
+\newcommand{\Lp}[2][]{L^p#1(#2)}
+\newcommand{\LInfty}[2][]{L^{\infty}#1(#2)}
+\newcommand{\LLtwo}[2][]{\boldsymbol{L}^2#1(#2)}
+\newcommand{\LLp}[2][]{\boldsymbol{L}^p#1(#2)}
+\newcommand{\LLInfty}[2][]{\boldsymbol{L}^{\infty}#1(#2)}
+\newcommand{\LLone}[2][]{\boldsymbol{L}^{1}#1(#2)}
+\newcommand{\Sob}[2]{H^{#1}(#2)}
+\newcommand{\SSob}[2]{\boldsymbol{H}^{#1}(#2)}
+\newcommand{\Hone}[2][]{H^1#1(#2)}
+\newcommand{\bHone}[2][]{\boldsymbol{H}^1#1(#2)}
+\newcommand{\Hgradvar}[2][]{H#1(\GradSymb;#2)}
+\newcommand{\Hcurl}[2][]{\boldsymbol{H}#1(\CurlSymb;#2)}
+\newcommand{\Hdiv}[2][]{\boldsymbol{H}#1(\DivSymb;#2)}
+\newcommand{\Hcurlm}[2][]{\boldsymbol{H}#1(\CurlSymbM;#2)}
+\newcommand{\Hdivm}[2][]{\boldsymbol{H}#1(\DivSymbM;#2)}
+
+% discrete spaces, null spaces and range spaces
+%==============================================
+\newcommand{\W}[2][]{W#1(#2)}
+\newcommand{\Z}[2][]{\KerSymb#1(#2)}
+\renewcommand{\S}[2][]{\mathcal{S}#1(#2)}
+\newcommand{\R}[2][]{\CodSymb#1(#2)}
+
+
+% Mathematical operations and operators
+%======================================
+
+\newcommand{\pvec}[2]{{#1}\times{#2}}
+\newcommand{\psca}[2]{{#1}\cdot{#2}}
+\newcommand{\GradSymb}{\vec{grad}}
+\newcommand{\CurlSymb}{\vec{curl}}
+\newcommand{\DivSymb}{\mathrm{div}}
+%\newcommand{\GradSymb}{\mathrm{\boldsymbol{grad}}}
+%\newcommand{\CurlSymb}{\mathrm{\boldsymbol{curl}}}
+%\newcommand{\DivSymb}{\mathrm{div}}
+\newcommand{\GradSymbM}{\text{\bf Grad}}
+\newcommand{\CurlSymbM}{\text{\bf Curl}}
+\newcommand{\DivSymbM}{\text{Div}}
+\newcommand{\Curl}[2][]{\mathrm{\CurlSymb}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Grad}[2][]{\mathrm{\GradSymb}{#1}\,{#2}}
+\newcommand{\Div}[2][]{\mathrm{\DivSymb}{#1}\,{#2}}
+\newcommand{\Gradm}[2][]{\text{\GradSymbM}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Curlm}[2][]{\text{\CurlSymbM}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Divm}[2][]{\text{\DivSymbM}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Grads}[2][]{\text{\GradSymb}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Curls}[2][]{\text{\CurlSymb}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\Divs}[2][]{\text{\DivSymb}{#1}\,{#2}}\let\Rot\Curl
+\newcommand{\isur}[3][]{\left\langle#2,#3\right\rangle#1}
+\newcommand{\ivol}[3][]{\left(#2,#3\right)#1}
+
+
+\DeclareMathOperator{\curl}{\vec{curl}}
+\DeclareMathOperator{\grad}{\vec{grad}}
+%\DeclareMathOperator{\div}{\vec{div}}
+\DeclareMathOperator{\Bnd}{\mathcal{S}}
+\DeclareMathOperator{\It}{\mathcal{A}}
+\DeclareMathOperator{\Id}{\mathcal{I}}
+\DeclareMathOperator{\trace}{\gamma_T}
+\DeclareMathOperator{\twist}{\gamma_t}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\ifpdf
+  \DeclareGraphicsExtensions{.eps,.pdf,.png,.jpg}
+\else
+  \DeclareGraphicsExtensions{.eps}
+\fi
+
+% Add a serial/Oxford comma by default.
+\newcommand{\creflastconjunction}{, and~}
+
+% Used for creating new theorem and remark environments
+\newsiamremark{remark}{Remark}
+\newsiamremark{hypothesis}{Hypothesis}
+\crefname{hypothesis}{Hypothesis}{Hypotheses}
+\newsiamthm{claim}{Claim}
+
+% Sets running headers as well as PDF title and authors
+\headers{FE streamer code}{I. Niyonzima and T. Wong}
+
+% Title. If the supplement option is on, then "Supplementary Material"
+% is automatically inserted before the title.
+\title{MFEM code for streamers\thanks{Submitted to the editors on AA/BB/CCCC.
+%\funding{This work was funded by the Fog Research Institute under contract no.~FRI-454.}
+}}
+
+\author{
+  Innocent Niyonzima\thanks{Univ. Grenoble Alpes, CNRS, Grenoble INP, G2ELab, F-38000 Grenoble, France, \email{innocent.niyonzima@univ-grenoble-alpes.fr}.}
+  \and Timothy Wong\thanks{University of Strathclyde, Department of Electronic and Electrical Engineering, Glasgow, Scotland, \email{timothy.wong@strath.ac.uk}.}
+}
+
+%\usepackage{amsopn}
+%\DeclareMathOperator{\diag}{diag}
+
+
+%%% Local Variables: 
+%%% mode:latex
+%%% TeX-master: "ex_article"
+%%% End: 

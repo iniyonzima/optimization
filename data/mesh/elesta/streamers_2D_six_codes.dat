@@ -1,0 +1,76 @@
+// Flags
+//======
+Flag_Dynamic = 0; // Can be used in the presence of mechanical waves (this is unused for the moment)
+
+// Parameters used to build the geometry
+//=======================================
+mm = 1e-3;
+micro = 1e-6;
+
+Flag_Refined_Geometry = 0;
+Flag_Transfinite = 0; // Used to get a transfinite mesh
+
+len = 12.5*mm;
+
+If(Flag_Refined_Geometry == 0)
+	y_0 = 0.0 * mm;
+	y_1 = 12.50 * mm;
+	y_2 = 52.50 * mm;
+EndIf
+If(Flag_Refined_Geometry)
+	y_0 = 0.0 * mm;
+	y_1 = 10.00 * mm;
+	y_2 = 12.50 * mm;
+EndIf
+
+//Ratio_Reg1_Reg2 = 7.5;
+//Num_Factor = 2500;
+Ratio_Reg1_Reg2 = 15;
+Num_Factor = 6250;
+/*
+x_0 = 0.0 * mm;
+x_1 = 12.5*mm/Ratio_Reg1_Reg2; //12.5*mm/5;
+x_2 = 12.5*mm;
+*/
+///*
+x_0 = 0.;
+//x_1 = 12.5*mm*0.5;
+x_1 = 2000*micro;
+x_2 = 12.5*mm;
+//*/
+
+/*
+// Non-uniform density of mesh
+lc_x_0 = 8*x_2/(625); //x_2/(500);
+lc_x_1 = 2*lc_x_0*2.5;
+lc_x_2 = 2*x_2/25;
+*/
+
+
+///*
+// Uniform density of mesh
+lc_x_0 = x_2/(125;
+//lc_x_0 = 10*x_2/(625); 
+lc_x_1 = lc_x_0;
+lc_x_2 = lc_x_0;
+//*/
+/*
+lc_x_0 = 40*micro; 
+lc_x_1 = lc_x_0;
+lc_x_2 = 250*micro;
+*/
+
+num_X_1 = Floor[(x_1 - x_0)/lc_x_0];
+num_X_2 = Floor[(x_2 - x_1)/lc_x_2];
+num_Y = Floor[(12.5*mm)/lc_x_0];
+
+// Geometry and the mesh
+//======================
+GAMMA_UP = 1000;
+GAMMA_RIGHT = 1001;
+GAMMA_BOTTOM = 1002;
+GAMMA_LEFT = 1003;
+OMEGA_INTERNAL = 2000;
+OMEGA_EXTERNAL = 2001;
+
+Dir_Res = 'results_stage/';

@@ -1,0 +1,155 @@
+% SIAM Article Template
+\documentclass[review,hidelinks,onefignum,onetabnum]{siamart220329}
+
+% Information that is shared between the article and the supplement
+% (title and author information, macros, packages, etc.) goes into
+% ex_shared.tex. If there is no supplement, this file can be included
+% directly.
+
+\input{ex_shared}
+
+% Optional PDF information
+\ifpdf
+\hypersetup{
+  pdftitle={An Example Article},
+  pdfauthor={I. Niyonzima and T. Wong}
+}
+\fi
+
+\externaldocument[][nocite]{ex_supplement}
+
+\setcounter{section}{1}
+\counterwithin{algorithm}{section}  % Number algorithms within sections
+
+
+\begin{document}
+%
+%
+\maketitle
+
+% REQUIRED
+\begin{abstract}
+  \lipsum[1]
+\end{abstract}
+
+% REQUIRED
+\begin{keywords}
+    Numerical modeling, finite element method, discontinuous Galerkin method, electric discharges. 
+\end{keywords}
+
+% REQUIRED
+\begin{MSCcodes}
+    35K55
+\end{MSCcodes}
+%
+%
+%=================================================================================
+%==================================================================================
+\section{Introduction}
+%=================================================================================
+%==================================================================================
+%
+%
+\lipsum[1-2]
+%
+%
+\newpage
+%
+%
+{
+  \begin{center}
+    \begin{algorithm}
+      \small
+      \caption{Pseudocode for the streamers code}\label{alg:FE-Streamers}
+      \begin{algorithmic}
+        \INPUT The mesh, initial conditions (Gaussian seed for $n_i$ and background value for $n_e$), BCs for $n_i, n_e$ and the voltage$v$.
+        \OUTPUT Electrostatic fields and the concentration of different species.
+        \Procedure{Streamer code}{} 
+            \State 1. Define parameters used for the resolution and for mesh refinement.
+            %
+            \vspace{2mm}
+            %
+            \State 2. Read the mesh and perform uniform refinement (if needed).
+            %
+            \vspace{2mm}
+            %
+            \State 3. Choose time steppers for $n_e$ and $n_i$.
+            %
+            \vspace{2mm}
+            %
+            \State 4. Generate initial refined mesh using the initial value $n_{i 0}$.
+            %
+            \vspace{2mm}
+            %
+            \State 5. Define FS : $\Hone[]{\Omega_{\mathrm{ele}}:\mathbb{R}}$, $\Hone[]{\Omega_{\mathrm{n}_i}:\mathbb{R}}$, $\Hone[]{\Omega_{\mathrm{n}_e}:\mathbb{R}}$, $\Hcurl[]{\Omega_{\mathrm{ele}}:\mathbb{R}^3}$ and $\Ltwo[]{\Omega_{\mathrm{ele}}:\mathbb{R}}$.
+            %
+            \vspace{2mm}
+            %
+            \State 6. Define BCs, the BilinearForm and the LinearForm \high{for the electrostatic problem}.
+            %
+            \vspace{2mm}
+            %
+            \State 7. Define ICs for $n_e$ and $n_i$, and instantiate \emph{AdvectionDiffusionOperators} objects used for the resolution of ADR equations. For a given ADR PDE:
+            \begin{equation*}
+              \partial_t n = \Div[]{\Big( \mu(E) \, \bEE \, n + D(E) \Grad[]{n} \Big)} + \bar{\alpha}(E) n,
+            \end{equation*}
+            this object represents thr RHS of the discretized ODE 
+            :
+            \begin{equation*}
+              \frac{d n_h}{d t} = \bMM^{-1} \bff(t, n_h),
+            \end{equation*}
+            %
+            \vspace{2mm}
+            %
+            \State 9. Define the list of estimators, the \high{ThreshHoldRefiner} and the \high{ThreshHoldDerefiner}.
+            %
+            \vspace{2mm}
+            %
+            \State 10. Define DataCollections (ParaViewDataCollection and GmshDataCollection).
+            %
+            \vspace{2mm}
+            %
+            \State 11. Initialize OdeSolvers for $n_e$ and $n_i$.
+            %
+            \vspace{2mm}
+            %
+            \State 12. \high{Time loop}.
+            \vspace{2mm}
+            \For{$(n \gets 1$ To $N_{\mathrm{TS}} )$}              \, \Comment{\emph{the time loop \textcolor{white}{abana banjye ban}  } }
+              \State 12.1. Set Time and $\Delta$Time.
+              %
+              \vspace{1mm}
+              %
+              \State 12.2. Refiner.Reset() and Derefiner.Reset().
+              %
+              \vspace{1mm}
+              %
+              \State 12.3. \high{Refinement loop}.
+              %
+              \vspace{1mm}
+              %
+              \For{$(l \gets 1$ To $N_{\mathrm{Ref}})$} \, \Comment{\emph{The refinement loop \textcolor{white}{abanab} } }
+                \State 12.3.1. \high{Solve the electrostatic problem} (compute total electric charge, compute the BilinearForm and the LinearForm, Linear solve, RecoverSolution, saveSolutions).          
+              %
+              \vspace{1mm}
+              %
+                \State 12.3.2. Apply the refiner $\longrightarrow$ compute errors. \high{If Refiner.Stop()} $\longrightarrow$ exit the refinement loop, \high{else}, update objects (FunctionSpace, BilinearForms LineaForms, Vectors, ...)
+              \EndFor
+              \State 12.4. \high{Derefinement} $\longrightarrow$ update objects.
+              %
+              \vspace{1mm}
+              %
+              \State 12.5. Solve the ADR equations for $n_e$ and $n_i$ (project $\Grad[]{v}$ onto $\Hcurl[]{\Omega_{\mathrm{ele}}:\mathbb{R}^3}$, update parameters used in the ADR for $n_e$ $\longrightarrow$ solve for $n_e$, update parameters used in the ADR for $n_i$ $\longrightarrow$ solve for $n_i$, compute $n_i - n_e$ and $\bar{\alpha} \mu_e(E) E n_e$ and use them in the error estimators, Save solutions).
+            \EndFor
+        \EndProcedure
+      \end{algorithmic}
+    \end{algorithm}
+  \end{center}
+}
+%
+\normalsize
+%
+%
+ \bibliographystyle{siamplain}
+% \bibliography{./all_biblio}
+\end{document}
