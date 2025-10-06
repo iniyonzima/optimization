@@ -22,8 +22,9 @@
 #include <math.h>
 #include <algorithm>    // std::min
 
-// #include "mfem/linalg/vector.hpp"
-// #include "mfem/fem/fe.hpp"
+#ifdef OPTIMIZATION_USE_MPI
+   #include <mpi.h>
+#endif
 
 #include "../../src/fem/datacollection.hpp"
 
@@ -39,43 +40,57 @@ const double PI = 3.141592653589793238463;
 class MagneticFlux
 {
 private:
-   GridFunction az_;
+   ParGridFunction az_;
    PWConstCoefficient j0_;
 public:
-   MagneticFlux(GridFunction az, PWConstCoefficient j0)
+   MagneticFlux( ParGridFunction az, PWConstCoefficient j0)
       : az_(az), j0_(j0) {}
    double ComputeFlux() 
    {
-      LinearForm j0_lf( const_cast<FiniteElementSpace *>(az_.FESpace() ) );
+
+      // const mfem::ParFiniteElementSpace *FESpace_tmp = dynamic_cast<const mfem::ParFiniteElementSpace *>(az_.FESpace());
+
+      ParFiniteElementSpace *FESpace_tmp = dynamic_cast<ParFiniteElementSpace *>(const_cast<FiniteElementSpace *>(az_.FESpace()));
+
+      // ParGridFunction *gf_tmp = dynamic_cast<ParGridFunction *>(const_cast<GridFunction *>(gf_coeff.GetGridFunction()));
+
+
+      if (!FESpace_tmp) {
+         std::cerr << "FESpace is not a ParFiniteElementSpace!" << std::endl;
+         std::abort(); // or throw
+      }
+      ParLinearForm j0_lf(FESpace_tmp);
+      // ParLinearForm j0_lf( const_cast<ParFiniteElementSpace *>(az_.FESpace() ) );
       j0_lf.AddDomainIntegrator(new DomainLFIntegrator(j0_));
       j0_lf.Assemble();
       return 0.5 * j0_lf(az_);
+      // return 0.5;
    }
 };
 
 class MagSta_Problem
 {
 private:
-   FiniteElementSpace &fes;
+   ParFiniteElementSpace &fes;
    Coefficient *lhs_coeff;
    Coefficient *rhs_coeff;
    Coefficient *design_char_coeff;
-   BilinearForm *K;
-   LinearForm *F;
+   ParBilinearForm *K;
+   ParLinearForm *F;
 public:
-   MagSta_Problem(FiniteElementSpace &fes_, Coefficient *lhs_coeff_, Coefficient *rhs_coeff_) : fes(fes_), 
+   MagSta_Problem(ParFiniteElementSpace &fes_, Coefficient *lhs_coeff_, Coefficient *rhs_coeff_) : fes(fes_), 
    lhs_coeff(lhs_coeff_), rhs_coeff(rhs_coeff_), design_char_coeff(NULL)
    {
-      K = new BilinearForm(&fes);
+      K = new ParBilinearForm(&fes);
       K->AddDomainIntegrator(new DiffusionIntegrator(*lhs_coeff));
-      F = new LinearForm(&fes);
+      F = new ParLinearForm(&fes);
       F->AddDomainIntegrator(new DomainLFIntegrator(*rhs_coeff));
    }
-   MagSta_Problem(FiniteElementSpace &fes_, Coefficient *lhs_coeff_, Coefficient *rhs_coeff_, Coefficient *design_char_coeff_) : fes(fes_), 
+   MagSta_Problem(ParFiniteElementSpace &fes_, Coefficient *lhs_coeff_, Coefficient *rhs_coeff_, Coefficient *design_char_coeff_) : fes(fes_), 
    lhs_coeff(lhs_coeff_), rhs_coeff(rhs_coeff_), design_char_coeff(design_char_coeff_)
    {
-      K = new BilinearForm(&fes);
-      F = new LinearForm(&fes);
+      K = new ParBilinearForm(&fes);
+      F = new ParLinearForm(&fes);
    }
 
    Coefficient *get_LHS_Coeff()
@@ -107,11 +122,11 @@ public:
    void ComputeBilinearForm(int Flag_Update_Matrix)
    {
       BilinearFormIntegrator *integ = new DiffusionIntegrator(*lhs_coeff);
-      BilinearForm *K_Temp = new BilinearForm(&fes);
+      ParBilinearForm *K_Temp = new ParBilinearForm(&fes);
       if(Flag_Update_Matrix)
       {
          delete K;
-         K = new BilinearForm(&fes, K_Temp);
+         K = new ParBilinearForm(&fes, K_Temp);
          K->AddDomainIntegrator(integ);
       }
       else 
@@ -132,7 +147,7 @@ public:
          { 
             delete F; 
          }
-         F = new LinearForm(&fes);
+         F = new ParLinearForm(&fes);
          F->AddDomainIntegrator(new DomainLFIntegrator(*rhs_coeff));
       }
       else 
@@ -143,34 +158,59 @@ public:
       return;
    }
 
-   void Solve(GridFunction &x, Array<int> ess_tdof_list) 
+   void Solve( ParGridFunction  &x, Array<int> ess_tdof_list) 
    {
-      SparseMatrix A;
-      Vector B, X;
-      K->FormLinearSystem(ess_tdof_list, x, *F, A, X, B);
+      // if(0)
+      // {
+      //    SparseMatrix A;
+      //    Vector B, X;
+      //    K->FormLinearSystem(ess_tdof_list, x, *F, A, X, B);
 
-      #ifndef MFEM_USE_SUITESPARSE
-         DSmoother M(A);         
-         PCG(A, M, B, X, 0, 5000, 1e-12, 0.0);
-      #else
-         UMFPackSolver umf_solver;
-         umf_solver.Control[UMFPACK_ORDERING] = UMFPACK_ORDERING_METIS;
-         umf_solver.SetOperator(A);
-         umf_solver.Mult(B, X);
-      #endif
-      K->RecoverFEMSolution(X, *F, x);
+      //    #ifndef MFEM_USE_SUITESPARSE
+      //       DSmoother M(A);         
+      //       PCG(A, M, B, X, 0, 5000, 1e-12, 0.0);
+      //    #else
+      //       UMFPackSolver umf_solver;
+      //       umf_solver.Control[UMFPACK_ORDERING] = UMFPACK_ORDERING_METIS;
+      //       umf_solver.SetOperator(A);
+      //       umf_solver.Mult(B, X);
+      //    #endif
+      //    K->RecoverFEMSolution(X, *F, x);
+      // }
+      // else
+      // {
+         HypreParMatrix A;
+         Vector B, X;
+         K->FormLinearSystem(ess_tdof_list, x, *F, A, X, B);
+
+         // 11. Solve the system using PCG with hypre's BoomerAMG preconditioner.
+         HypreBoomerAMG P(A);
+         // BiCGSTABSolver cg(MPI_COMM_WORLD);
+         CGSolver cg(MPI_COMM_WORLD);
+         cg.SetRelTol(1e-12);
+         cg.SetMaxIter(2000);
+         cg.SetPrintLevel(0);
+         cg.SetPreconditioner(P);
+         cg.SetOperator(A);
+         cg.Mult(B, X);
+
+         // Reconstruct total solution
+         //===========================
+         K->RecoverFEMSolution(X, *F, x);
+
+      // }
       return;
    }
 
-   double ComputeFlux(GridFunction &x) 
+   double ComputeFlux( ParGridFunction  &x) 
    {
-      LinearForm j0_lf(&fes);
+      ParLinearForm j0_lf(&fes);
       j0_lf.AddDomainIntegrator(new DomainLFIntegrator(*rhs_coeff) );
       j0_lf.Assemble();
       return j0_lf(x);
    }
 
-   double ComputeFlux(GridFunction &x, PWConstCoefficient &j0) 
+   double ComputeFlux( ParGridFunction  &x, PWConstCoefficient &j0) 
    {
       MagneticFlux *MagFlux = new MagneticFlux(x, j0);
       return MagFlux->ComputeFlux();
@@ -178,10 +218,10 @@ public:
 
    double ComputeVolume(Coefficient &h_GF_Coeff) 
    {
-      LinearForm j0_lf(&fes);
+      ParLinearForm j0_lf(&fes);
       ConstantCoefficient lambda_coeff(1);
       j0_lf.AddDomainIntegrator(new DomainLFIntegrator(lambda_coeff) );
-      GridFunction *vol_GF = new GridFunction(&fes);
+      ParGridFunction *vol_GF = new ParGridFunction(&fes);
       vol_GF->ProjectCoefficient(h_GF_Coeff);
       j0_lf.Assemble();
       double vol_val = j0_lf(*vol_GF);
@@ -191,13 +231,13 @@ public:
 
    GridFunctionCoefficient ConvertToGridFunctionCoefficient(Coefficient &this_coeff)
    {
-      GridFunction *gf_tmp = new GridFunction(&fes);
+      ParGridFunction *gf_tmp = new ParGridFunction(&fes);
       gf_tmp->ProjectCoefficient(this_coeff);
       GridFunctionCoefficient this_gf_coeff(gf_tmp);
       return this_gf_coeff;
    }
 
-   double Evaluate_Objective_Function(GridFunction &x, double lambda, Coefficient &h_GF_Coeff) 
+   double Evaluate_Objective_Function( ParGridFunction  &x, double lambda, Coefficient &h_GF_Coeff) 
    {
       double flux, volume;
       flux = ComputeFlux(x);
@@ -238,7 +278,7 @@ public:
       return;
    }
 
-   void PrintGridFunction_UsingGmsh(GmshDataCollection *_gd_magsta, GridFunction &this_GF, string old_name, string new_name) 
+   void PrintGridFunction_UsingGmsh(GmshDataCollection *_gd_magsta, ParGridFunction &this_GF, string old_name, string new_name) 
    {
       _gd_magsta->DeregisterField(old_name);
       _gd_magsta->RegisterField(new_name, &this_GF);
@@ -271,7 +311,16 @@ public:
 
       int time_step_gmsh = 0;
       double time_gmsh = 0.0;
-      GridFunction *x_tmp = new GridFunction(*(gf_coeff.GetGridFunction()));
+      ParFiniteElementSpace *FESpace_tmp = dynamic_cast<ParFiniteElementSpace *>(const_cast<FiniteElementSpace *>(gf_coeff.GetGridFunction()->FESpace()));
+      ParGridFunction *gf_tmp = dynamic_cast<ParGridFunction *>(const_cast<GridFunction *>(gf_coeff.GetGridFunction()));
+      if ((!FESpace_tmp) || (!gf_tmp)) {
+         // Handle error: the cast failed
+         std::cerr << "FESpace is not a ParFiniteElementSpace! of gf_tmp is not ParGridFunction! " << std::endl;
+         exit(1); // or throw
+      }
+
+      // ParGridFunction *x_tmp = new ParGridFunction(FESpace_tmp, *(gf_coeff.GetGridFunction()));
+      ParGridFunction *x_tmp = new ParGridFunction(FESpace_tmp, *(gf_tmp));
       _gd_magsta_gfc->RegisterField(name_field, x_tmp);
       {
          cout << " GmshDataCollection step = " << time_step_gmsh << ", t = " << time_gmsh << endl;
@@ -292,7 +341,7 @@ public:
    void PrintGridFunctionCoefficient_UsingGmsh(GmshDataCollection *_gd_magsta_gfc, 
       Coefficient &this_coeff, string name_field, int _flag_data_type, int _ncomp)
    {
-      GridFunction *gf_tmp = new GridFunction(&fes);
+      ParGridFunction *gf_tmp = new ParGridFunction(&fes);
       gf_tmp->ProjectCoefficient(this_coeff);
       GridFunctionCoefficient this_gf_coeff(gf_tmp);
       PrintGridFunctionCoefficient_UsingGmsh(_gd_magsta_gfc, this_gf_coeff, name_field, _flag_data_type, _ncomp);
@@ -307,7 +356,7 @@ public:
       int time_step_pv = 0;
       double time_pv = 0.0;
 
-      GridFunction *x_tmp = new GridFunction(&fes);
+      ParGridFunction *x_tmp = new  ParGridFunction (&fes);
       x_tmp->ProjectCoefficient(h_gf_coeff);
       _pd_magsta_gfc->RegisterField(name_field, x_tmp);
       {
@@ -321,7 +370,7 @@ public:
      return;
    }
 
-   void ComputeSensitivity(GridFunction &dx, GridFunction &dx_adj, Coefficient &nu_hat, GridFunction &sensitivity_gridfunction)
+   void ComputeSensitivity( ParGridFunction  &dx, ParGridFunction &dx_adj, Coefficient &nu_hat, ParGridFunction &sensitivity_gridfunction)
    {
       VectorGridFunctionCoefficient grad_x(&dx);
       VectorGridFunctionCoefficient grad_x_adj(&dx_adj);
@@ -348,77 +397,101 @@ public:
 
 int main(int argc, char *argv[])
 {
+   // 1. Initialize MPI and HYPRE
+   //============================
+   Mpi::Init(argc, argv);
+   int num_procs = Mpi::WorldSize();
+   int myid = Mpi::WorldRank();
+   Hypre::Init();
+
    // 1. Parse command line options
    //==============================
    int order = 1;
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh", "Mesh file to use.");
    args.AddOption(&order, "-o", "--order", "Finite element polynomial degree");
-   args.ParseCheck();
+
+   // args.ParseCheck();
+
+   args.Parse();
+   if (!args.Good()) {
+      if (myid == 0) {
+         args.PrintUsage(cout);
+      }
+      MPI_Finalize();
+      return 1;
+   }
+   if (myid == 0) {
+      mfem::out << num_procs << " number of process created.\n";
+      args.PrintOptions(cout);
+   }
 
    // 2. Read the mesh from the given mesh file, and refine once uniformly.
    //======================================================================
-   Mesh mesh(mesh_file);
-   // mesh.UniformRefinement(1);   
+   Mesh *mesh = new Mesh(mesh_file);
+   // mesh->UniformRefinement(1);   
+   cout << "There are " << mesh->attributes.Size() << " physical region in the mesh" << endl;
+   mesh->Finalize();
 
-   cout << "There are " << mesh.attributes.Size() << " physical region in the mesh" << endl;
-   // for (int i = 0; i < mesh.attributes.Size(); i++){
-   //    cout << "Printing volume attribute number " << *(mesh.attributes + i) << endl;
-   // }
+   // 5. Define a parallel mesh by partitioning the serial mesh.  Once the
+   //    parallel mesh is defined, the serial mesh can be deleted.
+   ParMesh *pmesh = new ParMesh(MPI_COMM_WORLD, *mesh);
+   delete mesh;
+
 
    // 3. Define a finite element space on the mesh. Here we use H1 continuous
    //    high-order Lagrange finite elements of the given order.
    //========================================================================
-   H1_FECollection fec(order, mesh.Dimension());
-   FiniteElementSpace fespace(&mesh, &fec);
+   H1_FECollection fec(order, pmesh->Dimension());
+   ParFiniteElementSpace fespace(pmesh, &fec);
 
    int order_vol = 0;
-   L2_FECollection fec_vol(order_vol, mesh.Dimension());
-   FiniteElementSpace fespace_vol(&mesh, &fec_vol);
+   L2_FECollection fec_vol(order_vol, pmesh->Dimension());
+   ParFiniteElementSpace fespace_vol(pmesh, &fec_vol);
 
-   H1_FECollection fec_adj(order, mesh.Dimension());
-   FiniteElementSpace fespace_adj(&mesh, &fec_adj);
+   H1_FECollection fec_adj(order, pmesh->Dimension());
+   ParFiniteElementSpace fespace_adj(pmesh, &fec_adj);
 
-   ND_FECollection fec_nd(order, mesh.Dimension());
-   FiniteElementSpace fespace_nd(&mesh, &fec_nd);
+   ND_FECollection fec_nd(order, pmesh->Dimension());
+   ParFiniteElementSpace fespace_nd(pmesh, &fec_nd);
 
-   ND_FECollection fec_nd_adj(order, mesh.Dimension());
-   FiniteElementSpace fespace_nd_adj(&mesh, &fec_nd_adj);
+   ND_FECollection fec_nd_adj(order, pmesh->Dimension());
+   ParFiniteElementSpace fespace_nd_adj(pmesh, &fec_nd_adj);
 
    // 4. Extract the list of all the boundary DOFs. These will be marked as
    //    Dirichlet in order to enforce zero boundary conditions.  
    //====================================================================== 
    Array<int> ess_tdof_list;
    Array<int> ess_bdr;
-   if (mesh.bdr_attributes.Size())
+   if (pmesh->bdr_attributes.Size())
    {
-      ess_bdr.SetSize(mesh.bdr_attributes.Max());
+      ess_bdr.SetSize(pmesh->bdr_attributes.Max());
       ess_bdr = 0;
       ess_bdr[999] = 1;
       fespace.GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
    }
-   Vector x_Diri(mesh.bdr_attributes.Max() );
+   Vector x_Diri(pmesh->bdr_attributes.Max() );
    x_Diri = 0.0;
    x_Diri(999) = 0.0;
    PWConstCoefficient x_Diri_c(x_Diri);
 
    Array<int> ess_tdof_list_adj;
    Array<int> ess_bdr_adj;
-   if (mesh.bdr_attributes.Size())
+   if (pmesh->bdr_attributes.Size())
    {
-      ess_bdr_adj.SetSize(mesh.bdr_attributes.Max());
+      ess_bdr_adj.SetSize(pmesh->bdr_attributes.Max());
       ess_bdr_adj = 0;
       ess_bdr_adj[999] = 1;
       fespace_adj.GetEssentialTrueDofs(ess_bdr_adj, ess_tdof_list_adj);
    }
-   Vector x_Diri_adj(mesh.bdr_attributes.Max() );
+   Vector x_Diri_adj(pmesh->bdr_attributes.Max() );
    x_Diri_adj = 0.0;
    x_Diri_adj(999) = 0.0;
    PWConstCoefficient x_Diri_c_adj(x_Diri_adj);
 
    // 6. Define the coefficient of the RHS used in the LForm of the direct problem.
    //==============================================================================
-   Vector js(mesh.attributes.Max());
+   Vector js(pmesh->attributes.Max());
    js = 0.0;
    js(1999) = M_PI * 1.0e8;
    PWConstCoefficient js_c(js);
@@ -427,33 +500,33 @@ int main(int argc, char *argv[])
    //===============================================================================
    double surf_indu;
    surf_indu = 8e-6;
-   Vector j0_vec(mesh.attributes.Max());
+   Vector j0_vec(pmesh->attributes.Max());
    j0_vec = 0.0;
    j0_vec(2000) = -1.0/surf_indu;
    j0_vec(2001) = 1.0/surf_indu;
    j0_vec(2002) = 1.0/surf_indu;
    j0_vec(2003) = -1.0/surf_indu;
    PWConstCoefficient j0_coeff(j0_vec);
-   GridFunction j0_gf(&fespace);
+   ParGridFunction j0_gf(&fespace);
    j0_gf.ProjectCoefficient(j0_coeff);
 
    // 8. Define the solution x as a finite element grid function in fespace. Set
    //    the initial guess to zero, which also sets the boundary conditions.
    //===========================================================================
-   GridFunction x(&fespace);
+   ParGridFunction x(&fespace);
    x = 0.0;
    x.ProjectBdrCoefficient(x_Diri_c, ess_bdr);
 
-   GridFunction dx(&fespace_nd);
+   ParGridFunction dx(&fespace_nd);
    dx = 0.0;
    DiscreteLinearOperator grad(&fespace, &fespace_nd);
    grad.AddDomainInterpolator(new GradientInterpolator);
    
-   GridFunction x_adj(&fespace_adj);
+   ParGridFunction x_adj(&fespace_adj);
    x_adj = 0.0;
    x_adj.ProjectBdrCoefficient(x_Diri_c_adj, ess_bdr_adj);
 
-   GridFunction dx_adj(&fespace_nd_adj);
+   ParGridFunction dx_adj(&fespace_nd_adj);
    dx_adj = 0.0;
    DiscreteLinearOperator grad_adj(&fespace_adj, &fespace_nd_adj);
    grad_adj.AddDomainInterpolator(new GradientInterpolator);
@@ -461,7 +534,7 @@ int main(int argc, char *argv[])
    // 9. Define Datacollections (Paraview and Gmsh) used for the postoperation.
    //==========================================================================
    ParaViewDataCollection *pd_magsta = NULL;
-   pd_magsta = new ParaViewDataCollection("Capteur_MagSta", &mesh);
+   pd_magsta = new ParaViewDataCollection("Capteur_MagSta", pmesh);
    pd_magsta->SetPrefixPath("ParaView_Capteur");
    pd_magsta->RegisterField("solution", &x);
    pd_magsta->RegisterField("adjoint", &x_adj);
@@ -473,7 +546,7 @@ int main(int argc, char *argv[])
    pd_magsta->SetHighOrderOutput(true);
 
    ParaViewDataCollection *pd_magsta_gfc = NULL;
-   pd_magsta_gfc = new ParaViewDataCollection("Capteur_MagSta", &mesh);
+   pd_magsta_gfc = new ParaViewDataCollection("Capteur_MagSta", pmesh);
    pd_magsta_gfc->SetPrefixPath("ParaView_Capteur");
    pd_magsta_gfc->RegisterField("solution", &x);
    pd_magsta_gfc->SetLevelsOfDetail(order);
@@ -481,14 +554,14 @@ int main(int argc, char *argv[])
    pd_magsta_gfc->SetHighOrderOutput(true);
 
    GmshDataCollection *gd_magsta = NULL;
-   gd_magsta = new GmshDataCollection("", &mesh);
+   gd_magsta = new GmshDataCollection("", pmesh);
    gd_magsta->SetPrefixPath(gd_path);
    gd_magsta->RegisterField("az_dir", &x);
    gd_magsta->RegisterField("az_dir_0", &x);
    gd_magsta->RegisterField("az_adj", &x_adj);
 
    GmshDataCollection *gd_magsta_gfc = NULL;
-   gd_magsta_gfc = new GmshDataCollection("", &mesh);
+   gd_magsta_gfc = new GmshDataCollection("", pmesh);
    gd_magsta_gfc->SetPrefixPath(gd_path);
 
    std::cout << "... " << std::endl;
@@ -508,7 +581,7 @@ int main(int argc, char *argv[])
    std::string old_name = "az_dir_0";
    std::string new_name = "az_dir_0";
 
-   GridFunction x_old(&fespace);
+   ParGridFunction x_old(&fespace);
    x_old.ProjectGridFunction(x);
 
    // 1. Initialization
@@ -516,13 +589,13 @@ int main(int argc, char *argv[])
 
    // 1.1. h <-- h_init
    //==================
-   Vector h_init(mesh.attributes.Max());
+   Vector h_init(pmesh->attributes.Max());
    h_init = 0.0;
    h_init(2004) = 0.5;
    h_init(2005) = 0.5;
    PWConstCoefficient h_init_c(h_init);
 
-   Vector nu(mesh.attributes.Max());
+   Vector nu(pmesh->attributes.Max());
    double mu0 = 4*M_PI*1.0e-7, mu_r = 1.0e0;
    nu = 1.0/mu0;
    nu(2004) = 1.0/(mu_r*mu0);
@@ -530,15 +603,15 @@ int main(int argc, char *argv[])
    PWConstCoefficient nu_c(nu);
 
 
-   GridFunction h_gf_old(&fespace_vol); // Attention changer l'espace fonctionnel
+   ParGridFunction h_gf_old(&fespace_vol); // Attention changer l'espace fonctionnel
    h_gf_old.ProjectCoefficient(h_init_c);
    GridFunctionCoefficient h_gf_coeff_old(&h_gf_old);
 
-   GridFunction h_gf_new(&fespace_vol); // Attention changer l'espace fonctionnel
+   ParGridFunction h_gf_new(&fespace_vol); // Attention changer l'espace fonctionnel
    h_gf_new.ProjectCoefficient(h_init_c);
    GridFunctionCoefficient h_gf_coeff_new(&h_gf_new);
 
-   GridFunction sensitivity_gf(&fespace_vol); // Attention changer l'espace fonctionnel 
+   ParGridFunction sensitivity_gf(&fespace_vol); // Attention changer l'espace fonctionnel 
    sensitivity_gf.ProjectCoefficient(h_init_c);
    GridFunctionCoefficient sensitivity(&sensitivity_gf);
 
@@ -692,7 +765,7 @@ int main(int argc, char *argv[])
             {
                // Compute tau and h = h_old_gd_coeff - tau * sensitivity
                //=======================================================
-               GridFunction this_GF = GridFunction(&fespace);
+               ParGridFunction this_GF = ParGridFunction(&fespace);
                this_GF.ProjectCoefficient(sensitivity);
                Vector vec_sensitivity;
                this_GF.SetFromTrueDofs(vec_sensitivity);

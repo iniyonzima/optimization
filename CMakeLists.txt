@@ -22,7 +22,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-option(OPTIMIZATION_USE_MPI "Build OPTIMIZATION with MPI support" OFF)
+option(OPTIMIZATION_USE_MPI "Build OPTIMIZATION with MPI support" ON)
+# option(USE_MPI "Build DISCHARGES with MPI support" ON)
 
 # === FIND MPI ===
 if(OPTIMIZATION_USE_MPI)
@@ -45,10 +46,12 @@ endif()
 if(NOT MFEM_DIR)
     message(FATAL_ERROR "Please set MFEM_DIR to the MFEM install directory")
 endif()
-if(USE_MPI AND (NOT HYPRE_DIR))
+# if(USE_MPI AND (NOT HYPRE_DIR))
+if(OPTIMIZATION_USE_MPI AND (NOT HYPRE_DIR))
     message(FATAL_ERROR "Please set HYPRE_DIR to the HYPRE install directory")
 endif()
-if(USE_MPI AND (NOT METIS_DIR))
+# if(USE_MPI AND (NOT METIS_DIR))
+if(OPTIMIZATION_USE_MPI AND (NOT METIS_DIR))
     message(FATAL_ERROR "Please set METIS_DIR to the METIS install directory")
 endif()
 
@@ -56,7 +59,8 @@ endif()
 # ====================
 include_directories(${MFEM_DIR}/mfem/include)
 include_directories(${MFEM_DIR}/mfem/include/mfem)
-if(USE_MPI)
+# if(USE_MPI)
+if(OPTIMIZATION_USE_MPI)
     include_directories(${HYPRE_DIR}/include)
     include_directories(${METIS_DIR})
     include_directories(${METIS_DIR}/Lib)
@@ -72,7 +76,8 @@ set_target_properties(mfem PROPERTIES
     IMPORTED_LOCATION ${MFEM_DIR}/libmfem.a 
     INTERFACE_INCLUDE_DIRECTORIES ${MFEM_DIR}/mfem/include)
 
-if(USE_MPI)
+# if(USE_MPI)
+if(OPTIMIZATION_USE_MPI)
     add_library(HYPRE STATIC IMPORTED)
     set_target_properties(HYPRE PROPERTIES 
         IMPORTED_LOCATION ${HYPRE_DIR}/lib/libHYPRE.a 
