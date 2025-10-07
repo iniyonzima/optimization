@@ -47,24 +47,15 @@ public:
       : az_(az), j0_(j0) {}
    double ComputeFlux() 
    {
-
-      // const mfem::ParFiniteElementSpace *FESpace_tmp = dynamic_cast<const mfem::ParFiniteElementSpace *>(az_.FESpace());
-
       ParFiniteElementSpace *FESpace_tmp = dynamic_cast<ParFiniteElementSpace *>(const_cast<FiniteElementSpace *>(az_.FESpace()));
-
-      // ParGridFunction *gf_tmp = dynamic_cast<ParGridFunction *>(const_cast<GridFunction *>(gf_coeff.GetGridFunction()));
-
-
       if (!FESpace_tmp) {
          std::cerr << "FESpace is not a ParFiniteElementSpace!" << std::endl;
          std::abort(); // or throw
       }
       ParLinearForm j0_lf(FESpace_tmp);
-      // ParLinearForm j0_lf( const_cast<ParFiniteElementSpace *>(az_.FESpace() ) );
       j0_lf.AddDomainIntegrator(new DomainLFIntegrator(j0_));
       j0_lf.Assemble();
       return 0.5 * j0_lf(az_);
-      // return 0.5;
    }
 };
 

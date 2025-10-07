@@ -34,7 +34,7 @@
 
 % REQUIRED
 \begin{keywords}
-    Numerical modeling, finite element method, discontinuous Galerkin method, electric discharges. 
+    Numerical modeling, finite element method, topology optimization, shape optimization, level set method, computational electromagnetics. 
 \end{keywords}
 
 % REQUIRED
@@ -60,10 +60,10 @@
   \begin{center}
     \begin{algorithm}
       \small
-      \caption{Pseudocode for the streamers code}\label{alg:FE-Streamers}
+      \caption{Pseudocode for the density optimization code (to be modified)}\label{alg:FE-Streamers}
       \begin{algorithmic}
-        \INPUT The mesh, initial conditions (Gaussian seed for $n_i$ and background value for $n_e$), BCs for $n_i, n_e$ and the voltage$v$.
-        \OUTPUT Electrostatic fields and the concentration of different species.
+        \INPUT The mesh, initial and boundary conditions.
+        \OUTPUT Optimized design.
         \Procedure{Streamer code}{} 
             \State 1. Define parameters used for the resolution and for mesh refinement.
             %
